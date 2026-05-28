@@ -92,6 +92,21 @@
             color: #999;
         }
 
+        .edit-btn {
+            background: #f0ad4e;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: .3rem .7rem;
+            cursor: pointer;
+            font-size: .85rem;
+            margin-right: .5rem;
+        }
+
+        .edit-btn:hover {
+            background: #ec971f;
+        }
+
         .delete-btn {
             background: #e53e3e;
             color: white;
@@ -133,6 +148,7 @@
         <div class="todo-item">
           <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTodo(${t.id})" />
           <span class="todo-title ${t.completed ? 'done' : ''}">${t.title}</span>
+          <button class="edit-btn" onclick="editTodo(${t.id}, '${t.title.replace(/'/g, "\\'")}')">แก้ไข</button>
           <button class="delete-btn" onclick="deleteTodo(${t.id})">ลบ</button>
         </div>`).join('');
         }
@@ -152,6 +168,22 @@
 
         async function toggleTodo(id) {
             await fetch(`${API}/todos/${id}`, { method: 'PATCH' });
+            fetchTodos();
+        }
+
+        async function editTodo(id, currentTitle) {
+            const newTitle = prompt('แก้ไขชื่องาน:', currentTitle);
+            if (newTitle === null) return;
+            const trimmedTitle = newTitle.trim();
+            if (!trimmedTitle) {
+                alert('กรุณากรอกชื่องาน');
+                return;
+            }
+            await fetch(`${API}/todos/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: trimmedTitle })
+            });
             fetchTodos();
         }
 
